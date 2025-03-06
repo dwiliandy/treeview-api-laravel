@@ -12,12 +12,30 @@ class FolderController extends Controller
 {
    public function index(){
     $folders = Folder::with(['subFolders', 'files'])->whereNull('parent_id')->get();
-    return response()->json($folders);
+    $right_data_folder = Folder::whereNull('parent_id')->get();
+    $right_data_file = File::whereNull('folder_id')->get();
+      return response()->json([
+        'folders' => $folders,
+        'right_data_folder' => $right_data_folder,
+        'right_data_file' => $right_data_file
+      ]);
    }
 
-   public function show($id){
-    $folder = Folder::where('id', $id)->with(['subFolders', 'files'])->get();
-    return response()->json($folder);
+   public function show($id = 0){
+    $folders = Folder::with(['subFolders', 'files'])->whereNull('parent_id')->get();
+    $right_data_folder = Folder::where('parent_id', $id)->get();
+    $right_data_file = File::where('folder_id', $id)->get();
+    if($right_data_folder == null && $right_data_file == null){
+      return response()->json([
+        'message' => 'Data not found'
+      ],404);
+    }else{  
+      return response()->json([
+        'folders' => $folders,
+        'right_data_folder' => $right_data_folder,
+        'right_data_file' => $right_data_file
+      ]);
+    }
    }
 
    public function store(Request $request)
