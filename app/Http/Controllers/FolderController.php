@@ -31,7 +31,7 @@ class FolderController extends Controller
         'errors' => $validator->errors()
       ],422);   
      }
-      if($request->type == 'files'){
+      if($request->type == 'file'){
          $data = File::create([
             'name' => $request->name,
             'folder_id' => $request->parent_id
@@ -50,7 +50,7 @@ class FolderController extends Controller
 
    public function update(Request $request, $id)
    {
-    $data = $request->type == 'files' ? File::find($id) : Folder::find($id);
+    $data = $request->type == 'file' ? File::find($id) : Folder::find($id);
     if($data == null){
       return response()->json([
         'message' => 'Data not found'
@@ -68,7 +68,7 @@ class FolderController extends Controller
 
    public function destroy($id)
    {
-    $data = $_GET['type'] == 'files' ? File::find($id) : Folder::find($id);
+    $data = $_GET['type'] == 'file' ? File::find($id) : Folder::find($id);
     if($data == null){
       return response()->json([
         'message' => 'Data not found'
@@ -80,4 +80,22 @@ class FolderController extends Controller
       ],204);
     }
    }
+
+  public function search(Request $request)
+  {
+    $query = $request->input('query');
+
+    if (!$query) {
+        return response()->json([
+            'message' => 'Query parameter is required'
+        ], 400);
+    }
+
+    $folders = Folder::where('name', 'LIKE', "%{$query}%")->with(['subFolders', 'files'])->get();
+    $files = File::where('name', 'LIKE', "%{$query}%")->get();
+    return response()->json([
+        'folders' => $folders,
+        'files' => $files
+    ]);
+  }
 }

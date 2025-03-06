@@ -6,3 +6,4 @@ use App\Http\Controllers\FolderController;
 
 
 Route::resource('/folders', 'App\Http\Controllers\FolderController');
+Route::get('/search', [FolderController::class, 'search']);
